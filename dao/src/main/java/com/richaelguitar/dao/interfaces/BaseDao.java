@@ -5,11 +5,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.richaelguitar.dao.annotation.Table;
 import com.richaelguitar.dao.entity.DaoEntity;
 import com.richaelguitar.dao.sqlite.Condition;
 import com.richaelguitar.dao.utils.DBReflectUtils;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -22,10 +26,12 @@ public  class BaseDao<T extends DaoEntity> implements IDao<T> {
     private static final String TAG = BaseDao.class.getSimpleName();
     private SQLiteDatabase database;
     private Class<T> entityClass;
+    private  String tableName;
 
     public void init(SQLiteDatabase database,Class<T> entityClass) {
         this.database =database;
         this.entityClass = entityClass;
+        this.tableName = entityClass.getAnnotation(Table.class).name();
         //判断数据库是否可用
         if(database.isOpen()){
             //创建数据表
@@ -40,15 +46,27 @@ public  class BaseDao<T extends DaoEntity> implements IDao<T> {
     @Override
     public long[] save(T... entitys) {
 
+//        if(database!=null&&database.isOpen()){
+//            database.beginTransaction();
+//            for(T entity:entitys){
+//                String insertSQL =  DBReflectUtils.generateInsertSQL(entity);
+//                Log.d(TAG,insertSQL);
+//                database.execSQL(insertSQL);
+//            }
+//            database.setTransactionSuccessful();
+//            database.endTransaction();
+//        }
         if(database!=null&&database.isOpen()){
-            database.beginTransaction();
             for(T entity:entitys){
-                String insertSQL =  DBReflectUtils.generateInsertSQL(entity);
-                Log.d(TAG,insertSQL);
-                database.execSQL(insertSQL);
+                ContentValues values = new ContentValues();
+                Map<String,String> valuesMap = DBReflectUtils.getValuesMap(entity);
+                Iterator<String> iterator = valuesMap.keySet().iterator();
+                while (iterator.hasNext()){
+                    String key = iterator.next();
+                    values.put(key,valuesMap.get(key));
+                }
+               database.insert(tableName,null,values);
             }
-            database.setTransactionSuccessful();
-            database.endTransaction();
         }
         return new long[0];
     }

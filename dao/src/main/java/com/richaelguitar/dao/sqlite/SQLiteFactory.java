@@ -22,6 +22,7 @@ public class SQLiteFactory {
 
     private static  SQLiteFactory ourInstance;
 
+
     public static SQLiteFactory getInstance(Context context) {
        if(ourInstance==null){
            synchronized (SQLiteFactory.class){

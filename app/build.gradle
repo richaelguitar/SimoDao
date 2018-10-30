@@ -15,7 +15,7 @@ android {
             buildConfigField "String", "DatabaseName", project.property('database_name')
             buildConfigField "String", "DatabaseVersion", project.property('database_version')
             minifyEnabled false
-            debuggable false
+            debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {

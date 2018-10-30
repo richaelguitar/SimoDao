@@ -1,15 +1,16 @@
 package com.richaelguitar.simodao;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
 import com.richaelguitar.dao.sqlite.SQLiteFactory;
+import com.richaelguitar.simodao.entity.Person;
+import com.richaelguitar.simodao.entity.User;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,5 +31,20 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG,"size="+personList.length);
         SQLiteFactory.getInstance(this).getDao(Person.class).save(personList);
+    }
+
+    public void addUser(View view) {
+       new Thread(new Runnable() {
+           @Override
+           public void run() {
+               long startTime = System.currentTimeMillis();
+               for(int i=0;i<5000;i++){
+                   SQLiteFactory.getInstance(MainActivity.this).getDao(User.class).save(new User("'richael"+i+"'","'123456'","'kad'"));
+                   Log.d(TAG,"=执行第"+(i+1)+"次=");
+               }
+               long endTime = System.currentTimeMillis();
+               Log.d(TAG,"=执行总时间="+((endTime-startTime)/1000f)+"s");
+           }
+       }).start();
     }
 }

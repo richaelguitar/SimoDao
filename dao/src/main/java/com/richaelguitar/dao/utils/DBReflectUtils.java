@@ -8,6 +8,7 @@ import com.richaelguitar.dao.annotation.Table;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 
@@ -21,13 +22,13 @@ public class DBReflectUtils {
 
     private static final String TAG = "feildName";
 
-    private static Map<String,Field>  cacheFieldMap = new HashMap<>();
+    private  static  Map<String,Field>  cacheFieldMap = new HashMap<>();
 
 
 
 
     public static String generateCreateTable(Class<?> clazz){
-
+        cacheFieldMap.clear();
         //获取注解
         Table table = clazz.getAnnotation(Table.class);
         if(table!=null){
@@ -86,6 +87,10 @@ public class DBReflectUtils {
                     if(index!=fields.length-1){
                         createTableSQL.append(" ,");
                     }
+                    if(!isPrimaryKey){
+                        //缓存
+                        cacheFieldMap.put(columnName,field);
+                    }
                 }
             }
             //结尾括号
@@ -112,37 +117,22 @@ public class DBReflectUtils {
             }
             StringBuffer sql = new StringBuffer("INSERT INTO ");
             sql.append(tableName).append(" ( ");
-            //获取字段
-            Field[] fields = clazz.getDeclaredFields();
-
-//            if(cacheFieldMap.size()>0){
-//
-//            }else{
-                for (int index=0;index<fields.length;index++) {
-                    Field field = fields[index];
-                    //获取列的注解
-                    Column column = field.getAnnotation(Column.class);
-                    if(column!=null) {
-                        //获取列的注解值
-                        String columnName = column.name();
-                        if (TextUtils.isEmpty(columnName)) {
-                            columnName = field.getName();
-                        }
-                        sql.append(columnName);
-                        if(index!=fields.length-1){
-                            sql.append(",");
-                        }
-                        //缓存
-                        cacheFieldMap.put(columnName,field);
-                    }
+            //拼接sql列名
+            int i = 0;
+            Iterator<String> stringIterator = cacheFieldMap.keySet().iterator();
+            while (stringIterator.hasNext()) {
+                sql.append(stringIterator.next());
+                if(i!=cacheFieldMap.size()-1){
+                    sql.append(",");
                 }
-//            }
+                i++;
+            }
 
             sql.append(" ) VALUES ( ");
-
-            //设置字段值
-            for (int index=0;index<fields.length;index++) {
-                Field field = fields[index];
+            Iterator<String> iterator = cacheFieldMap.keySet().iterator();
+            int index = 0;
+            while (iterator.hasNext()) {
+                Field field = cacheFieldMap.get(iterator.next());
                 field.setAccessible(true);
                 //获取列的值
                 try {
@@ -152,9 +142,11 @@ public class DBReflectUtils {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                if(index!=fields.length-1){
+
+                if(index!=cacheFieldMap.size()-1){
                     sql.append(",");
                 }
+                index++;
             }
             //结尾
             sql.append(" );");
@@ -162,5 +154,24 @@ public class DBReflectUtils {
             return sql.toString();
         }
         return null;
+    }
+
+    public static Map<String,String>  getValuesMap(Object object){
+        Map<String,String> valuesMap = new HashMap<>();
+        Iterator<String> iterator = cacheFieldMap.keySet().iterator();
+        while (iterator.hasNext()){
+            String key = iterator.next();
+            Field field = cacheFieldMap.get(key);
+            field.setAccessible(true);
+            String value = null;
+            try {
+                value = field.get(object).toString();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            valuesMap.put(key,value);
+        }
+
+        return valuesMap;
     }
 }
