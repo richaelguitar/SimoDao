@@ -8,11 +8,11 @@ import com.richaelguitar.dao.entity.DaoEntity;
 public class Person extends DaoEntity {
 
     @Column(name="p_name")
-    private String name;
+    public String name;
     @Column(name="p_age")
-    private int age;
+    public int age;
     @Column(name="p_sex")
-    private int sex;
+    public int sex;
 
     public Person(String name, int age, int sex) {
         this.name = name;
