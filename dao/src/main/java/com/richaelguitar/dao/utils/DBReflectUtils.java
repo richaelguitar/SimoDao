@@ -40,7 +40,7 @@ public class DBReflectUtils {
             StringBuffer createTableSQL = new StringBuffer("CREATE TABLE IF NOT EXISTS  ");
             createTableSQL.append(tableName).append(" ( ");
             //获取表字段
-            Field[] fields = clazz.getDeclaredFields();
+            Field[] fields = clazz.getFields();
             Log.d(TAG,"length"+fields.length);
             //遍历字段
             for (int index=0;index<fields.length;index++) {

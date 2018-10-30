@@ -14,22 +14,14 @@ public class User extends DaoEntity {
         this.origin = origin;
     }
 
-    @Column(name = "_id",isPrimaryKey = true,isAutoIncrement = true)
-    private int id;
+
     @Column(name = "user_name")
-    private String userName;
+    public String userName;
     @Column(name="pass_word")
-    private String password;
+    public String password;
     @Column(name = "origin")
-    private String origin;
+    public String origin;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getUserName() {
         return userName;

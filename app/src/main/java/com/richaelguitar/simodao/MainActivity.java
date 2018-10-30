@@ -9,6 +9,7 @@ import com.richaelguitar.dao.sqlite.SQLiteFactory;
 import com.richaelguitar.simodao.entity.Person;
 import com.richaelguitar.simodao.entity.User;
 
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -30,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     public void addPerson(View view) {
 
         Log.d(TAG,"size="+personList.length);
-        SQLiteFactory.getInstance(this).getDao(Person.class).save(personList);
+        long[] ids = SQLiteFactory.getInstance(this).getDao(Person.class).save(personList);
+        Log.d(TAG,"ids="+Arrays.toString(ids));
     }
 
     public void addUser(View view) {
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
            public void run() {
                long startTime = System.currentTimeMillis();
                for(int i=0;i<5000;i++){
-                   SQLiteFactory.getInstance(MainActivity.this).getDao(User.class).save(new User("'richael"+i+"'","'123456'","'kad'"));
+                    SQLiteFactory.getInstance(MainActivity.this).getDao(User.class).save(new User("'richael"+i+"'","'123456'","'kad'"));
                    Log.d(TAG,"=执行第"+(i+1)+"次=");
                }
                long endTime = System.currentTimeMillis();

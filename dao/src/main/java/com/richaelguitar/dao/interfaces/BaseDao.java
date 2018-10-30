@@ -56,8 +56,10 @@ public  class BaseDao<T extends DaoEntity> implements IDao<T> {
 //            database.setTransactionSuccessful();
 //            database.endTransaction();
 //        }
+        long[] ids = new long[entitys.length];
         if(database!=null&&database.isOpen()){
-            for(T entity:entitys){
+            for(int i=0;i<entitys.length;i++){
+                T entity = entitys[i];
                 ContentValues values = new ContentValues();
                 Map<String,String> valuesMap = DBReflectUtils.getValuesMap(entity);
                 Iterator<String> iterator = valuesMap.keySet().iterator();
@@ -65,10 +67,10 @@ public  class BaseDao<T extends DaoEntity> implements IDao<T> {
                     String key = iterator.next();
                     values.put(key,valuesMap.get(key));
                 }
-               database.insert(tableName,null,values);
+              ids[i] = database.insert(tableName,null,values);
             }
         }
-        return new long[0];
+        return ids;
     }
 
     @Override
